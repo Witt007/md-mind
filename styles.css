@@ -1,0 +1,824 @@
+/* Markmap Sync Plugin Styles */
+
+/* Container Styles */
+.markmap-sync-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--background-primary);
+    position: relative;
+}
+
+/* SVG Container */
+.markmap-sync-svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    --markmap-max-width: fit-content;
+}
+
+.markmap-sync-svg:active {
+    cursor: grabbing;
+}
+
+/* Toolbar Styles */
+.markmap-sync-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    background: var(--background-secondary);
+    border-bottom: 1px solid var(--divider-color);
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.markmap-sync-toolbar-btn {
+    padding: 6px 10px;
+    background: var(--background-primary);
+    border: 1px solid var(--divider-color);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-normal);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.markmap-sync-toolbar-btn:hover {
+    background: var(--background-modifier-hover);
+    border-color: var(--interactive-accent);
+}
+
+.markmap-sync-toolbar-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Node Styles */
+.markmap-node {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.markmap-node:hover {
+    filter: brightness(1.1);
+}
+
+.markmap-node-highlighted circle,
+.markmap-node-highlighted rect {
+    stroke: var(--interactive-accent) !important;
+    stroke-width: 3px !important;
+    filter: drop-shadow(0 0 4px var(--interactive-accent));
+}
+
+.markmap-node-highlighted .markmap-foreign,
+.markmap-node-highlighted .markmap-foreign>:first-child div {
+    cursor: pointer;
+    color: white !important;
+}
+
+.markmap-node-highlighted foreignObject {
+    outline: 2px solid var(--interactive-accent) !important;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.markmap-node-selected circle,
+.markmap-node-selected rect {
+    stroke: var(--text-highlight-bg) !important;
+    stroke-width: 3px !important;
+}
+
+.markmap-node-selected .markmap-foreign,
+.markmap-node-selected .markmap-foreign>:first-child div {
+    cursor: pointer;
+    background: rgb(38 86 111 / 40%) !important;
+    border-radius: 4px;
+}
+
+.markmap-node-selected foreignObject {
+    outline: 2px solid rgb(255 30 0 / 40%) !important;
+    outline-offset: 1px;
+    border-radius: 4px;
+}
+
+.markmap-node-dragging {
+    opacity: 0.5;
+}
+
+.markmap-drop-target circle,
+.markmap-drop-target rect {
+    stroke: var(--interactive-success) !important;
+    stroke-width: 2px !important;
+    stroke-dasharray: 4;
+}
+
+/* Inline Editor - Chat Input Box Style */
+.markmap-inline-editor {
+    position: absolute;
+    z-index: 100;
+    pointer-events: auto;
+
+    /* Chat input box dimensions */
+    min-width: 320px;
+    max-width: 600px;
+    min-height: 44px;
+    max-height: 320px;
+
+    /* Clean modern look */
+    border-radius: 12px;
+    border: 1px solid var(--divider-color);
+    background-color: var(--background-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    /* Layout container */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.markmap-inline-editor textarea {
+    width: 100%;
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Spacing and typography */
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-normal);
+
+    /* Smooth transitions */
+    transition: background-color 0.2s ease;
+}
+
+.markmap-inline-editor textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.markmap-inline-editor textarea:focus {
+    background-color: rgba(var(--interactive-accent-rgb), 0.02);
+}
+
+/* Custom scrollbar styling */
+.markmap-inline-editor textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.markmap-inline-editor textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.markmap-inline-editor textarea::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: 3px;
+}
+
+.markmap-inline-editor textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--text-normal);
+}
+
+@keyframes markmap-editor-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+        filter: drop-shadow(0 0 0px var(--interactive-accent));
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 12px var(--interactive-accent));
+    }
+}
+
+@keyframes markmap-scan-line {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+
+    10% {
+        opacity: 0.2;
+        transform: scaleY(1);
+    }
+
+    90% {
+        opacity: 0.2;
+        transform: scaleY(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+}
+
+/* Loading State */
+.markmap-sync-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.markmap-sync-loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid var(--text-muted);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: markmap-spin 1s linear infinite;
+}
+
+@keyframes markmap-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error State */
+.markmap-sync-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-error);
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Sync Indicator */
+.markmap-sync-container.is-syncing::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--interactive-accent), transparent);
+    animation: markmap-sync-pulse 1s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes markmap-sync-pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Context Menu */
+.markmap-context-menu {
+    position: absolute;
+    z-index: 1000;
+    background: var(--background-primary);
+    border: 1px solid var(--divider-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 4px 0;
+    min-width: 150px;
+}
+
+.markmap-context-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-normal);
+    font-size: 13px;
+    transition: background 0.15s ease;
+}
+
+.markmap-context-menu-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.markmap-context-menu-separator {
+    height: 1px;
+    background: var(--divider-color);
+    margin: 4px 0;
+}
+
+/* Theme Adaptations */
+.theme-dark {
+    --markmap-shadow-color: rgba(0, 0, 0, 0.3);
+    --markmap-selected-bg: rgba(100, 150, 200, 0.15);
+    --markmap-selected-border: rgba(100, 150, 200, 0.4);
+}
+
+.theme-light {
+    --markmap-shadow-color: rgba(0, 0, 0, 0.15);
+    --markmap-selected-bg: rgba(38, 86, 111, 0.25);
+    --markmap-selected-border: rgba(255, 30, 0, 0.3);
+}
+
+.theme-dark .markmap-sync-svg {
+    color-scheme: dark;
+}
+
+.theme-light .markmap-sync-svg {
+    color-scheme: light;
+}
+
+/* Dark Theme - Enhanced Styles */
+.theme-dark .markmap-sync-container {
+    background: var(--background-primary);
+}
+
+.theme-dark .markmap-inline-editor {
+    border: 1px solid var(--divider-color);
+    background-color: var(--background-primary);
+    box-shadow: 0 4px 12px var(--markmap-shadow-color), 0 2px 4px var(--markmap-shadow-color);
+}
+
+.theme-dark .markmap-inline-editor textarea {
+    background: var(--background-primary);
+    color: var(--text-normal);
+}
+
+.theme-dark .markmap-inline-editor textarea:focus {
+    background-color: var(--background-secondary);
+}
+
+.theme-dark .markmap-node-selected .markmap-foreign {
+    background: var(--markmap-selected-bg) !important;
+}
+
+.theme-dark .markmap-node-selected foreignObject {
+    outline: 2px solid var(--markmap-selected-border) !important;
+}
+
+.theme-dark .markmap-context-menu {
+    background: var(--background-primary);
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 4px 12px var(--markmap-shadow-color);
+}
+
+.theme-dark .markmap-node-highlighted {
+    filter: drop-shadow(0 0 8px var(--interactive-accent));
+}
+
+/* Light Theme - Enhanced Styles */
+.theme-light .markmap-sync-container {
+    background: var(--background-primary);
+}
+
+.theme-light .markmap-inline-editor {
+    border: 1px solid var(--divider-color);
+    background-color: var(--background-primary);
+    box-shadow: 0 4px 12px var(--markmap-shadow-color), 0 2px 4px var(--markmap-shadow-color);
+}
+
+.theme-light .markmap-inline-editor textarea {
+    background: var(--background-primary);
+    color: var(--text-normal);
+}
+
+.theme-light .markmap-inline-editor textarea:focus {
+    background-color: rgba(var(--interactive-accent-rgb), 0.05);
+}
+
+.theme-light .markmap-node-selected .markmap-foreign {
+    background: rgb(3 19 61 / 25%) !important;
+}
+
+.theme-light .markmap-node-selected foreignObject {
+    outline: 2px solid var(--markmap-selected-border) !important;
+}
+
+.theme-light .markmap-context-menu {
+    background: var(--background-primary);
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 4px 12px var(--markmap-shadow-color);
+}
+
+/* Foreign Object Content */
+.markmap-foreign {
+    overflow: visible;
+    cursor: pointer;
+}
+
+.markmap-foreign div {
+    font-family: var(--font-interface);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-normal);
+    cursor: pointer;
+}
+
+.markmap-foreign>div {
+    max-width: max-content;
+}
+
+.markmap-foreign a {
+    color: var(--text-accent);
+    text-decoration: none;
+}
+
+.markmap-foreign a:hover {
+    text-decoration: underline;
+}
+
+.markmap-foreign code {
+    font-family: var(--font-mono);
+    background: var(--code-background);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Path/Line Styles */
+.markmap-link {
+    fill: none;
+    stroke: var(--background-modifier-border);
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+}
+
+/* Circle Styles */
+.markmap-circle {
+    fill: var(--background-primary);
+    stroke: var(--background-modifier-border);
+    stroke-width: 1.5px;
+}
+
+.markmap-circle-filled {
+    fill: var(--interactive-accent);
+    stroke: var(--interactive-accent);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .markmap-sync-toolbar {
+        padding: 4px;
+    }
+
+    .markmap-sync-toolbar-btn {
+        padding: 4px 8px;
+    }
+
+    .markmap-sync-toolbar-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Animation for Node Expansion/Collapse */
+.markmap-node-enter {
+    animation: markmap-node-fade-in 0.3s ease;
+}
+
+.markmap-node-exit {
+    animation: markmap-node-fade-out 0.2s ease;
+}
+
+@keyframes markmap-node-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes markmap-node-fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* Comment & Annotation System Styles */
+.markmap-foreign {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    overflow: visible !important;
+}
+
+.markmap-node foreignObject {
+    overflow: visible !important;
+}
+
+.markmap-comment-container {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: absolute;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+    pointer-events: auto !important;
+    right: -25px;
+    top: 1px;
+}
+
+/* Host layer for comment popups. Lives outside the SVG so popups are not
+   clipped by foreignObject hit-testing and are stacked above all SVG nodes. */
+.markmap-comment-popup-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 5;
+}
+
+.markmap-comment-popup-layer .markmap-comment-popup {
+    pointer-events: auto;
+}
+
+.markmap-comment-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.6;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.markmap-comment-icon:hover {
+    color: var(--interactive-accent) !important;
+    opacity: 1 !important;
+    transform: scale(1.15);
+    background: var(--background-modifier-hover);
+}
+
+/* Highlight or select node also highlights the comment icon */
+.markmap-node-highlighted .markmap-comment-icon,
+.markmap-node-selected .markmap-comment-icon,
+.markmap-node:hover .markmap-comment-icon {
+    color: var(--interactive-accent);
+    opacity: 1;
+}
+
+.markmap-comment-popup {
+    /* Popup is positioned entirely by JS (left/top/width relative to the popup-layer)
+       so it follows markmap pan/zoom and lives above the SVG. */
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    min-width: 260px;
+    max-width: 380px;
+    max-height: 280px;
+    overflow-y: auto;
+
+    box-sizing: border-box;
+
+    padding: 12px 16px;
+    border-radius: 10px;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.22s;
+
+    z-index: 1000;
+
+    /* Premium Typography & Spacing */
+    font-family: var(--font-interface);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: normal;
+    text-align: left;
+
+    background: var(--background-floating, var(--background-primary)) !important;
+    border: 1px solid var(--background-modifier-border) !important;
+    color: var(--text-normal) !important;
+
+    backdrop-filter: blur(10px) saturate(145%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(145%) !important;
+
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26),
+        0 6px 18px rgba(0, 0, 0, 0.16),
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+body.theme-light .markmap-comment-popup {
+    background: color-mix(in srgb, var(--background-floating, var(--background-primary)) 96%, white) !important;
+    border-color: color-mix(in srgb, var(--background-modifier-border) 72%, var(--text-muted)) !important;
+    box-shadow: 0 18px 42px rgba(31, 35, 40, 0.18),
+        0 5px 16px rgba(31, 35, 40, 0.12),
+        0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+}
+
+body.theme-dark .markmap-comment-popup {
+    background: color-mix(in srgb, var(--background-floating, var(--background-primary)) 92%, black) !important;
+    border-color: color-mix(in srgb, var(--background-modifier-border) 72%, var(--text-muted)) !important;
+    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.48),
+        0 7px 22px rgba(0, 0, 0, 0.34),
+        0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+}
+
+/* Gap-bridging pseudo-element so mouse hover is not lost between icon and popup */
+.markmap-comment-popup::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    height: 12px;
+}
+
+/* Scrollbar styling for comments popup */
+.markmap-comment-popup::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.markmap-comment-popup::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.markmap-comment-popup::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: 2px;
+}
+
+.markmap-comment-popup::-webkit-scrollbar-thumb:hover {
+    background: var(--text-normal);
+}
+
+/* Markdown formatting inside comments popup */
+.markmap-comment-popup p {
+    margin: 0 0 8px 0;
+}
+
+.markmap-comment-popup p:last-child {
+    margin-bottom: 0;
+}
+
+.markmap-comment-popup ul,
+.markmap-comment-popup ol {
+    margin: 0 0 8px 0;
+    padding-left: 18px;
+}
+
+.markmap-comment-popup li {
+    margin-bottom: 4px;
+}
+
+.markmap-comment-popup code {
+    font-family: var(--font-mono);
+    background: var(--code-background);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Inline Comment Editor Styles */
+.markmap-comment-edit-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.markmap-comment-popup:hover .markmap-comment-edit-btn {
+    opacity: 0.7;
+}
+
+.markmap-comment-edit-btn:hover {
+    opacity: 1 !important;
+    background: var(--background-modifier-hover);
+    color: var(--interactive-accent);
+}
+
+.markmap-comment-textarea {
+    width: 100%;
+    min-height: 80px;
+    max-height: min(180px, calc(100vh - 180px));
+    box-sizing: border-box;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    padding: 8px;
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 8px;
+}
+
+.markmap-comment-textarea:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.15);
+}
+
+.markmap-comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.markmap-comment-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--background-primary);
+    color: var(--text-normal);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.markmap-comment-btn.save {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent, white);
+    border-color: var(--interactive-accent);
+}
+
+.markmap-comment-btn.save:hover {
+    background: var(--interactive-accent-hover);
+}
+
+.markmap-comment-btn.cancel:hover {
+    background: var(--background-modifier-hover);
+}
+
+/* Active icon state — node whose comment is currently shown */
+.markmap-comment-icon.is-active {
+    color: var(--interactive-accent) !important;
+    opacity: 1 !important;
+    animation: markmap-comment-icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes markmap-comment-icon-pulse {
+    0%, 100% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 2px var(--interactive-accent));
+    }
+    50% {
+        transform: scale(1.3);
+        filter: drop-shadow(0 0 8px var(--interactive-accent));
+    }
+}
+
+/* Content enter animation when switching between nodes */
+.markmap-comment-content.content-enter {
+    animation: markmap-comment-content-in 0.25s ease;
+}
+
+@keyframes markmap-comment-content-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Visibility triggers (JS activated) */
+.markmap-comment-popup.is-active,
+.markmap-comment-popup.is-editing {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
