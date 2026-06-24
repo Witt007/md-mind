@@ -13,7 +13,7 @@ export class MarkmapSettingTab extends PluginSettingTab {
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
-        new Setting(containerEl).setName('Markmap Sync Settings').setHeading()
+        new Setting(containerEl).setName('mdMind Sync').setHeading()
 
         this.addStartupSetting(containerEl);
         this.addSyncModeSetting(containerEl);
@@ -27,7 +27,7 @@ export class MarkmapSettingTab extends PluginSettingTab {
     private addStartupSetting(containerEl: HTMLElement): void {
         new Setting(containerEl)
             .setName('Open on startup')
-            .setDesc('Automatically open the Markmap sidebar when Obsidian starts')
+            .setDesc('Automatically open the mdMind sidebar when Obsidian starts')
             .addToggle((toggle: ToggleComponent) => {
                 toggle
                     .setValue(this.plugin.settings.openOnStartup)
