@@ -3,10 +3,34 @@ import { IPureNode } from 'markmap-common';
 import { CSS_CLASSES } from '../constants';
 import { CommentSlotInfo } from '../utils/commentSlot';
 
-const COMMENT_ICON_SVG = `<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg>`;
-const SAVE_ICON_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
-const CANCEL_ICON_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>`;
-const EDIT_ICON_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function createSvgIcon(paths: string[], size = 14): SVGSVGElement {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', String(size));
+    svg.setAttribute('height', String(size));
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    for (const d of paths) {
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', d);
+        svg.appendChild(path);
+    }
+    return svg;
+}
+
+const COMMENT_ICON = createSvgIcon([
+    'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+    'M13 8H7',
+    'M17 12H7'
+], 12);
+const SAVE_ICON = createSvgIcon(['M20 6 9 17l-5-5']);
+const CANCEL_ICON = createSvgIcon(['M18 6 6 18', 'M6 6l12 12']);
+const EDIT_ICON = createSvgIcon(['M12 20h9', 'M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z']);
 const COMMENT_HEADING_PATTERN = /^\s{0,3}#{1,6}(?:\s|$)/m;
 const COMMENT_HEADING_REPLACE_PATTERN = /^(\s{0,3})#{1,6}(?:\s+|$)/gm;
 
@@ -63,7 +87,7 @@ export class CommentOverlay {
 
         state.iconSpan = document.createElement('span');
         state.iconSpan.className = 'markmap-comment-icon';
-        state.iconSpan.insertAdjacentHTML('beforeend',COMMENT_ICON_SVG);
+        state.iconSpan.appendChild(COMMENT_ICON.cloneNode(true));
         state.container.appendChild(state.iconSpan);
         state.foreign.appendChild(state.container);
 
@@ -272,7 +296,7 @@ export class CommentOverlay {
 
         const editBtn = document.createElement('button');
         editBtn.className = 'markmap-comment-edit-btn';
-        editBtn.insertAdjacentHTML('beforeend',EDIT_ICON_SVG);
+        editBtn.appendChild(EDIT_ICON.cloneNode(true));
         popup.appendChild(editBtn);
 
         const state = this.activeNodeId ? this.nodeStates.get(this.activeNodeId) : undefined;
@@ -320,11 +344,11 @@ export class CommentOverlay {
 
         const saveBtn = document.createElement('button');
         saveBtn.className = 'markmap-comment-btn save';
-        saveBtn.insertAdjacentHTML('beforeend',SAVE_ICON_SVG);
+        saveBtn.appendChild(SAVE_ICON.cloneNode(true));
 
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'markmap-comment-btn cancel';
-        cancelBtn.insertAdjacentHTML('beforeend',CANCEL_ICON_SVG);
+        cancelBtn.appendChild(CANCEL_ICON.cloneNode(true));
 
         actions.appendChild(saveBtn);
         actions.appendChild(cancelBtn);
@@ -380,7 +404,7 @@ export class CommentOverlay {
                      if (p) {
                          p.removeClass('is-editing');
                          p.dataset.contentHash = '';
-                         p.innerHTML = '';
+                         p.textContent = '';
                      }
                  }*/
         };

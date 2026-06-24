@@ -180,22 +180,56 @@ export class MarkmapView extends ItemView {
                 cls: CSS_CLASSES.toolbarButton,
                 attr: { 'aria-label': btn.tooltip },
             });
-            button.insertAdjacentHTML('beforeend', this.getIconSvg(btn.icon));
+            button.appendChild(this.getIconSvg(btn.icon));
             button.addEventListener('click', btn.action);
         }
     }
 
-    private getIconSvg(icon: string): string {
-        const icons: Record<string, string> = {
-            'zoom-in': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>',
-            'zoom-out': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>',
-            'maximize': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
-            'rotate-ccw': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v6h6M3 13a9 9 0 1 0 3-7.7L3 8"/></svg>',
-            'expand': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
-            'collapse-all': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>',
-            'refresh-cw': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>',
+    private getIconSvg(icon: string): SVGSVGElement {
+        const SVG_NS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('width', '16');
+        svg.setAttribute('height', '16');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+
+        const iconPaths: Record<string, string[]> = {
+            'zoom-in': [
+                'M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7',
+            ],
+            'zoom-out': [
+                'M3 2v6h6M3 13a9 9 0 1 0 3-7.7L3 8',
+            ],
+            'maximize': [
+                'M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7',
+            ],
+            'rotate-ccw': [
+                'M3 2v6h6M3 13a9 9 0 1 0 3-7.7L3 8',
+            ],
+            'expand': [
+                'M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3',
+            ],
+            'collapse-all': [
+                'M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7',
+            ],
+            'refresh-cw': [
+                'M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3',
+            ],
         };
-        return icons[icon] || '';
+
+        const paths = iconPaths[icon];
+        if (paths) {
+            for (const d of paths) {
+                const path = document.createElementNS(SVG_NS, 'path');
+                path.setAttribute('d', d);
+                svg.appendChild(path);
+            }
+        }
+        return svg;
     }
 
     private createMarkmapContainer(): void {
