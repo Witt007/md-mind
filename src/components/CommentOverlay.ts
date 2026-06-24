@@ -433,6 +433,7 @@ export class CommentOverlay {
                 commitAndClose();
             } else if (e.key === 'Escape') {
                 e.preventDefault();
+                e.stopPropagation();
                 cancelAndClose();
             }
         });

@@ -13,7 +13,7 @@ export class MarkmapSettingTab extends PluginSettingTab {
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
-        new Setting(containerEl).setName('mdMind Sync').setHeading()
+        new Setting(containerEl).setName('Sync').setHeading()
 
         this.addStartupSetting(containerEl);
         this.addSyncModeSetting(containerEl);

@@ -546,14 +546,28 @@ export class MarkmapView extends ItemView {
 
     // the entrance of updating markmap from markdown
     private async updateMarkmapFromEditor(editor: Editor | null, ontransitionend?: () => void, operationType: operationType = this.operationType): Promise<boolean> {
-        const val = editor ? editor.getValue() : this.file && await this.app.vault.read(this.file);
-        if (!val) return Promise.resolve(false);
+        let val = editor ? editor.getValue() : this.file && await this.app.vault.read(this.file);
+
+        if (!val || val.trim() === '') {
+            if (editor) {
+                if (this.markmapContainerEl?.checkVisibility()) {
+                    const heading = '# Main topic\n';
+                    if (this.file) {
+                        await this.app.vault.modify(this.file, heading);
+                    }
+                    val = heading;
+                    this.markmapContainerEl.focus();
+                }
+            } else {
+                return Promise.resolve(false);
+            }
+        }
 
         if (ontransitionend) {
             this.renderer?.setOntransitionend(ontransitionend, this.selectedSvgNode, operationType);
         }
 
-        return this.updateMarkmapFromMarkdown(val);
+        return this.updateMarkmapFromMarkdown(val||'');
     }
 
     // 比对两个Editor对象是否完全相同
