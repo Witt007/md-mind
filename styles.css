@@ -133,11 +133,19 @@
     border: 1px solid var(--divider-color);
     background-color: var(--background-primary);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 
     /* Layout container */
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.markmap-inline-editor:focus-within {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .markmap-inline-editor textarea {
@@ -400,7 +408,7 @@
     background: rgb(3 19 61 / 25%);
 }
 
-. theme-light .markmap-node-selected foreignObject {
+.theme-light .markmap-node-selected foreignObject {
     outline: 2px solid var(--markmap-selected-border);
 }
 

@@ -7,7 +7,7 @@ import { MarkmapSettings } from '../types';
 import { CSS_CLASSES, ERROR_MESSAGES, VIEW_TYPE_MARKMAP } from '../constants';
 import { Debouncer, throttle } from '../utils/debounce';
 import { buildCommentIndex, computeCommentSlot, CommentSlotInfo } from '../utils/commentSlot';
-import { generateNodeEditorStyles } from '../utils/theme';
+
 
 export interface MarkmapToolbar {
     container: HTMLElement;
@@ -180,7 +180,7 @@ export class MarkmapView extends ItemView {
                 cls: CSS_CLASSES.toolbarButton,
                 attr: { 'aria-label': btn.tooltip },
             });
-            button.innerHTML = this.getIconSvg(btn.icon);
+            button.insertAdjacentHTML('beforeend', this.getIconSvg(btn.icon));
             button.addEventListener('click', btn.action);
         }
     }
@@ -200,9 +200,11 @@ export class MarkmapView extends ItemView {
 
     private createMarkmapContainer(): void {
         const container = this.contentEl.createDiv();
-        container.style.width = '100%';
-        container.style.height = '100%';
-        container.style.position = 'relative';
+        container.setCssStyles({
+            width: '100%',
+            height: '100%',
+            position: 'relative'
+        });
         // Make container focusable so it can receive keyboard events (Enter key)
         container.setAttribute('tabindex', '0');
         this.markmapContainerEl = container;
@@ -599,16 +601,20 @@ export class MarkmapView extends ItemView {
     private showMessage(text: string): void {
         if (!this.messageEl) {
             this.messageEl = this.contentEl.createDiv({ cls: CSS_CLASSES.error });
-            this.messageEl.style.position = 'absolute';
-            this.messageEl.style.inset = '0';
-            this.messageEl.style.display = 'flex';
-            this.messageEl.style.alignItems = 'center';
-            this.messageEl.style.justifyContent = 'center';
-            this.messageEl.style.zIndex = '10';
+            this.messageEl.setCssStyles({
+                position: 'absolute',
+                inset: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: '10'
+            });
         }
         this.messageEl.setText(text);
         if (this.markmapContainerEl) {
-            this.markmapContainerEl.style.display = 'none';
+            this.markmapContainerEl.setCssStyles({
+                display: 'none'
+            });
         }
     }
 
@@ -618,7 +624,9 @@ export class MarkmapView extends ItemView {
             this.messageEl = null;
         }
         if (this.markmapContainerEl) {
-            this.markmapContainerEl.style.display = '';
+            this.markmapContainerEl.setCssStyles({
+                display: ''
+            });
         }
     }
 
@@ -729,22 +737,30 @@ export class MarkmapView extends ItemView {
              offsetTop = Math.max(padding, rectOfNewNode.top - containerRect.top - 250 - padding);
          }*/
 
-        overlay.style.left = `${offsetLeft}px`;
-        overlay.style.top = `${offsetTop}px`;
-        overlay.style.width = `${targetWidth}px`
+        overlay.setCssStyles({
+            left: `${offsetLeft}px`,
+            top: `${offsetTop}px`,
+            width: `${targetWidth}px`
+        });
         /*overlay.style.minWidth = `${targetWidth}px`;
         overlay.style.maxWidth = `${targetWidth}px`;*/
 
         // Ensure textarea fills the overlay and adjust height to fit content
-        input.style.width = '100%';
+        input.setCssStyles({
+            width: '100%'
+        });
         const adjustHeight = () => {
-            input.style.height = 'auto';
+            input.setCssStyles({
+                height: 'auto'
+            });
             const maxHeight = this.markmapContainerEl!.clientHeight - Math.max(0, offsetTop) - padding;
             const minHeight = 44;
             const scrollHeight = input.scrollHeight;
 
-            input.style.height = maxHeight + 'px';
-            input.style.overflowY = 'auto';
+            input.setCssStyles({
+                height: maxHeight + 'px',
+                overflowY: 'auto'
+            });
             /* if (scrollHeight > maxHeight) {
              } else if (scrollHeight < minHeight) {
                  input.style.height = minHeight + 'px';
@@ -774,16 +790,12 @@ export class MarkmapView extends ItemView {
         const input = overlay.createEl('textarea', {
             text: initialContent, cls: 'markmap-inline-textarea'
         });
-
-        const style = document.createElement('style');
-        style.id = 'markmap-inline-styles';
-        style.textContent = generateNodeEditorStyles();
-        overlay.appendChild(style);
-
         //  input.addEventListener('input', () => this.updateEditorPosition());
 
-        overlay.style.position = 'absolute';
-        overlay.style.zIndex = '100';
+        overlay.setCssStyles({
+            position: 'absolute',
+            zIndex: '100'
+        });
 
         // When creating a new node, the node may be animating. Keep the overlay
         // synced to the node's left/top/width during the transition using requestAnimationFrame.
@@ -800,11 +812,15 @@ export class MarkmapView extends ItemView {
               const width = Math.min(rect.width,containerRect.width/3,300);
   
               // Apply node bounds directly to overlay and input so they track the node exactly
-              overlay.style.left = `${left}px`;
-              overlay.style.top = `${top}px`;
-              overlay.style.width = `${width}px`;
+              overlay.setCssStyles({
+                  left: `${left}px`,
+                  top: `${top}px`,
+                  width: `${width}px`
+              });
               // Make textarea fill the overlay
-              input.style.width = '100%';*/
+              input.setCssStyles({
+                  width: '100%'
+              });*/
             this.updateEditorPosition()
         };
 
@@ -915,9 +931,13 @@ export class MarkmapView extends ItemView {
 
     private extractNodePlainText(node: IPureNode): string {
         const content = typeof node.content === 'string' ? node.content : '';
-        const temp = document.createElement('div');
-        temp.innerHTML = content;
-        return temp.textContent || temp.innerText || content;
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/html');
+            return doc.body.textContent || doc.body.innerText || content;
+        } catch (e) {
+            return content;
+        }
     }
 
     private getMarkdownEditor(): Editor | null {

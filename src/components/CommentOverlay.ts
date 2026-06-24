@@ -63,7 +63,7 @@ export class CommentOverlay {
 
         state.iconSpan = document.createElement('span');
         state.iconSpan.className = 'markmap-comment-icon';
-        state.iconSpan.innerHTML = COMMENT_ICON_SVG;
+        state.iconSpan.insertAdjacentHTML('beforeend',COMMENT_ICON_SVG);
         state.container.appendChild(state.iconSpan);
         state.foreign.appendChild(state.container);
 
@@ -159,7 +159,7 @@ export class CommentOverlay {
             }
             this.activePopup.removeClass('is-active');
             this.activePopup.removeClass('is-editing');
-            this.activePopup.innerHTML = '';
+            this.activePopup.empty();
             this.activePopup.remove();
             this.activePopup = null;
         }
@@ -256,7 +256,7 @@ export class CommentOverlay {
         // if (popup.dataset.contentHash === slot.contentHash) return;
 
         popup.removeClass('is-editing');
-        popup.innerHTML = '';
+        popup.empty();
         popup.dataset.contentHash = slot.contentHash;
 
         const contentDiv = document.createElement('div');
@@ -272,7 +272,7 @@ export class CommentOverlay {
 
         const editBtn = document.createElement('button');
         editBtn.className = 'markmap-comment-edit-btn';
-        editBtn.innerHTML = EDIT_ICON_SVG;
+        editBtn.insertAdjacentHTML('beforeend',EDIT_ICON_SVG);
         popup.appendChild(editBtn);
 
         const state = this.activeNodeId ? this.nodeStates.get(this.activeNodeId) : undefined;
@@ -300,7 +300,7 @@ export class CommentOverlay {
         state.isEditing = true;
         const nodeId = this.getNodeId(state);
         this.options.onEditingChange(true, nodeId);
-        popup.innerHTML = '';
+        popup.empty();
         popup.addClass('is-editing');
 
         const initialRawText = slot.text;
@@ -320,11 +320,11 @@ export class CommentOverlay {
 
         const saveBtn = document.createElement('button');
         saveBtn.className = 'markmap-comment-btn save';
-        saveBtn.innerHTML = SAVE_ICON_SVG;
+        saveBtn.insertAdjacentHTML('beforeend',SAVE_ICON_SVG);
 
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'markmap-comment-btn cancel';
-        cancelBtn.innerHTML = CANCEL_ICON_SVG;
+        cancelBtn.insertAdjacentHTML('beforeend',CANCEL_ICON_SVG);
 
         actions.appendChild(saveBtn);
         actions.appendChild(cancelBtn);
@@ -435,9 +435,11 @@ export class CommentOverlay {
 
                /pup.style.left = `${Math.round(x)}px`;
                popup.style.top = `${layerRect.height - popup.clientHeight - 30}px`;*/
-        popup.style.width = `${Math.round(POPUP_W)}px`;
-        popup.style.maxHeight = `${Math.round(POPUP_H)}px`;
-        popup.style.transform = 'none';
+        popup.setCssStyles({
+            width: `${Math.round(POPUP_W)}px`,
+            maxHeight: `${Math.round(POPUP_H)}px`,
+            transform: 'none'
+        });
     }
 
     // ── Public API ──
