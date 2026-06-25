@@ -1,12 +1,12 @@
-import { Editor, ItemView, MarkdownView, Menu, Notice, TFile, WorkspaceLeaf } from 'obsidian';
-import { IPureNode } from 'markmap-common';
-import { MarkmapRenderer, operationType } from '../components/MarkmapRenderer';
-import { SyncEngine } from '../components/SyncEngine';
-import { CommentOverlay } from '../components/CommentOverlay';
-import { MarkmapSettings } from '../types';
-import { CSS_CLASSES, ERROR_MESSAGES, VIEW_TYPE_MARKMAP } from '../constants';
-import { Debouncer, throttle } from '../utils/debounce';
-import { buildCommentIndex, computeCommentSlot, CommentSlotInfo } from '../utils/commentSlot';
+import {Editor, ItemView, MarkdownView, Menu, Notice, TFile, WorkspaceLeaf} from 'obsidian';
+import {IPureNode} from 'markmap-common';
+import {MarkmapRenderer, operationType} from '../components/MarkmapRenderer';
+import {SyncEngine} from '../components/SyncEngine';
+import {CommentOverlay} from '../components/CommentOverlay';
+import {MarkmapSettings} from '../types';
+import {CSS_CLASSES, ERROR_MESSAGES, VIEW_TYPE_MARKMAP} from '../constants';
+import {Debouncer, throttle} from '../utils/debounce';
+import {buildCommentIndex, computeCommentSlot, CommentSlotInfo} from '../utils/commentSlot';
 
 
 export interface MarkmapToolbar {
@@ -166,19 +166,19 @@ export class MarkmapView extends ItemView {
         this.toolbar = this.contentEl.createDiv(CSS_CLASSES.toolbar);
 
         const buttons = [
-            { icon: 'zoom-in', tooltip: 'Zoom In', action: () => this.renderer?.zoomIn() },
-            { icon: 'zoom-out', tooltip: 'Zoom Out', action: () => this.renderer?.zoomOut() },
-            { icon: 'maximize', tooltip: 'Fit View', action: () => this.renderer?.fit() },
-            { icon: 'rotate-ccw', tooltip: 'Reset', action: () => this.renderer?.resetZoom() },
-            { icon: 'expand', tooltip: 'Expand All', action: () => this.expandAll() },
-            { icon: 'collapse-all', tooltip: 'Collapse All', action: () => this.collapseAll() },
-            { icon: 'refresh-cw', tooltip: 'Refresh', action: () => this.updateFromActiveFile() },
+            {icon: 'zoom-in', tooltip: 'Zoom In', action: () => this.renderer?.zoomIn()},
+            {icon: 'zoom-out', tooltip: 'Zoom Out', action: () => this.renderer?.zoomOut()},
+            {icon: 'maximize', tooltip: 'Fit View', action: () => this.renderer?.fit()},
+            {icon: 'rotate-ccw', tooltip: 'Reset', action: () => this.renderer?.resetZoom()},
+            {icon: 'expand', tooltip: 'Expand All', action: () => this.expandAll()},
+            {icon: 'collapse-all', tooltip: 'Collapse All', action: () => this.collapseAll()},
+            {icon: 'refresh-cw', tooltip: 'Refresh', action: () => this.updateFromActiveFile()},
         ];
 
         for (const btn of buttons) {
             const button = this.toolbar.createEl('button', {
                 cls: CSS_CLASSES.toolbarButton,
-                attr: { 'aria-label': btn.tooltip },
+                attr: {'aria-label': btn.tooltip},
             });
             button.appendChild(this.getIconSvg(btn.icon));
             button.addEventListener('click', btn.action);
@@ -341,7 +341,7 @@ export class MarkmapView extends ItemView {
             } else if (['ArrowRight', 'ArrowDown', 'ArrowUp', 'ArrowLeft'].includes(e.key)) {
                 void this.handleArrowKey(e);
             }
-        }, { capture: false });
+        }, {capture: false});
 
         /*      // Ctrl+Shift+Alt+C: capture on window so it works when the markdown editor (or another pane) has focus
              // but a markmap node is already selected in this view.
@@ -378,7 +378,7 @@ export class MarkmapView extends ItemView {
             if ((e.target as Element).closest('.cm-contentContainer'))
                 this.updateFromActiveFile();
 
-        }, { capture: true });
+        }, {capture: true});
 
 
     }
@@ -546,20 +546,34 @@ export class MarkmapView extends ItemView {
 
     // the entrance of updating markmap from markdown
     private async updateMarkmapFromEditor(editor: Editor | null, ontransitionend?: () => void, operationType: operationType = this.operationType): Promise<boolean> {
-        let val = editor ? editor.getValue() : this.file && await this.app.vault.read(this.file);
+        let val = editor?.getValue();
 
-        if (!val || val.trim() === '') {
+        // Guard: if editor is non-null but getValue() returned empty, the reference may be stale.
+        // Re-acquire a fresh editor reference and try again. If that also returns empty, fall back
+        // to reading from vault before concluding the file is truly empty.
+        if (!val) {
+            const file = this.app.workspace.getActiveFile();
+            if (file?.extension === 'md') {
+                val = await this.app.vault.read(file);
+            }else return false;
+        }
+
+        if (val?.trim() === '') {
             if (editor) {
                 if (this.markmapContainerEl?.checkVisibility()) {
                     const heading = '# Main topic\n';
-                    if (this.file) {
-                        await this.app.vault.modify(this.file, heading);
-                    }
                     val = heading;
+                    // Only write to vault if the file is truly empty (both editor and vault agree)
+                    if (this.file) {
+                        try {
+                            await this.app.vault.modify(this.file, heading);
+                        } catch {
+                        }
+                    }
                     this.markmapContainerEl.focus();
                 }
             } else {
-                return Promise.resolve(false);
+                return false
             }
         }
 
@@ -567,7 +581,7 @@ export class MarkmapView extends ItemView {
             this.renderer?.setOntransitionend(ontransitionend, this.selectedSvgNode, operationType);
         }
 
-        return this.updateMarkmapFromMarkdown(val||'');
+        return this.updateMarkmapFromMarkdown(val || '');
     }
 
     // 比对两个Editor对象是否完全相同
@@ -648,7 +662,7 @@ export class MarkmapView extends ItemView {
 
     private showMessage(text: string): void {
         if (!this.messageEl) {
-            this.messageEl = this.contentEl.createDiv({ cls: CSS_CLASSES.error });
+            this.messageEl = this.contentEl.createDiv({cls: CSS_CLASSES.error});
             this.messageEl.setCssStyles({
                 position: 'absolute',
                 inset: '0',
@@ -710,8 +724,8 @@ export class MarkmapView extends ItemView {
           }*/
         if (!editingOnMarkdown)
             editor.scrollIntoView({
-                from: { line: mapping.startLine, ch: 0 },
-                to: { line: mapping.startLine, ch: 0 }
+                from: {line: mapping.startLine, ch: 0},
+                to: {line: mapping.startLine, ch: 0}
             }, true)
 
         this.clearNodeSelection();
@@ -989,19 +1003,33 @@ export class MarkmapView extends ItemView {
     }
 
     private getMarkdownEditor(): Editor | null {
-        // 1. Check if we already have a valid editor for the current file
+        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+
+        // 1. Verify cached editor is still tied to a current MarkdownView
         if (this.currentEditor && this.file) {
+            const isValid = activeView?.editor === this.currentEditor ||
+                this.findMarkdownView()?.editor === this.currentEditor;
+            if (isValid) {
+                return this.currentEditor;
+            }
+            // Stale reference — clear it and fall through to re-fetch
+            this.currentEditor = null;
+        }
+
+        // 2. Try active view first
+        if (activeView && activeView.file === this.file) {
+            this.currentEditor = activeView.editor;
             return this.currentEditor;
         }
 
-        // 2. Try to find a MarkdownView for the current file
+        // 3. Try to find a MarkdownView for the current file
         const mdView = this.findMarkdownView();
         if (mdView) {
             this.currentEditor = mdView.editor;
             return this.currentEditor;
         }
 
-        // 3. No editor available
+        // 4. No editor available
         return null;
     }
 
@@ -1076,7 +1104,7 @@ export class MarkmapView extends ItemView {
             });
         });
 
-        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+        menu.showAtPosition({x: event.clientX, y: event.clientY});
     }
 
     private handleNodeDragStart(node: IPureNode, event: DragEvent): void {
@@ -1382,7 +1410,7 @@ export class MarkmapView extends ItemView {
 
         if (fromLine >= mapping.endLine) {
             const titleCh = editor.getLine(mapping.startLine).length;
-            editor.replaceRange('\n', { line: mapping.startLine, ch: titleCh });
+            editor.replaceRange('\n', {line: mapping.startLine, ch: titleCh});
             slot = {
                 nodeId,
                 fromLine,
